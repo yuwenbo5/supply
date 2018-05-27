@@ -1,0 +1,229 @@
+<!DOCTYPE HTML>
+{include file="public/header"}
+<!-- topbar ends -->
+<div class="ch-container">
+    <div class="row">
+        <!-- left menu starts -->
+
+        {include file="public/menu"}
+
+        <!-- left menu ends -->
+        <div id="content" class="col-lg-10 col-sm-10">
+            <!-- content starts -->
+            <div>
+                <ul class="breadcrumb">
+                    <li>
+                        <a href="{:url('index/index')}">主页</a>
+                    </li>
+                    <li>
+                        <a href="{:url('product/index')}">产品列表</a>
+                    </li>
+                </ul>
+            </div>
+            <form name="form1" id="checkForm" action="{:url('product/index')}" method="post">
+                <div class="row">
+                    <div class="box col-md-12">
+                        <div class="box-inner">
+                            <div style="font-size:12px;margin-top:10px;padding-left:10px;">
+                                <label>
+                                    <input type="text" class="form-control" placeholder="产品编号" name="sku" title="精确查询" value="">
+                                </label>
+                                <label>
+                                    <input type="text" class="form-control" placeholder="产品名称" name="ctitle" title="支持模糊查询" value="">
+                                </label>
+                                <label>
+                                    审核状态：<select name="audit_status" style="border-color:#DDD;border-radius:3px;">
+                                    <option value="">不限</option>
+                                    {foreach name='audit_status' item='value'}
+                                    <option value="{$key}">{$value}</option>
+                                    {/foreach}
+                                </select>
+                                </label>
+                                <label>
+                                    分页：<select name="pageNums" style="border-color:#DDD;border-radius:3px;">
+                                    {foreach name='page_list' item='value'}
+                                    <option value="{$key}">{$value}</option>
+                                    {/foreach}
+                                </select>
+                                </label>
+                                <label>
+                                    <select name="order" style="border-color:#DDD;border-radius:3px;">
+                                        {php}
+                                            foreach($order_arr as $key => $value){
+                                                if($value['is_default'] == 1){
+                                                    {/php}
+                                                    <option value="{$key}" selected>{$value.name}</option>
+                                                    {php}
+                                                }else{
+                                                    {/php}
+                                                    <option value="{$key}">{$value.name}</option>
+                                                    {php}
+                                                }
+                                            }
+                                        {/php}
+                                    </select>
+                                </label>
+                                <label>
+                                    <select name="order_by" style="border-color:#DDD;border-radius:3px;">
+                                    {php}
+                                        foreach($order_list as $key => $value){
+                                            if($value['is_default'] == 1){
+                                                {/php}
+                                                <option value="{$key}" selected>{$value.name}</option>
+                                                {php}
+                                            }else{
+                                                {/php}
+                                                <option value="{$key}">{$value.name}</option>
+                                                {php}
+                                            }
+                                        }
+                                    {/php}
+                                    </select>
+                                </label>
+                                <input type="submit" class="btn btn-primary" name="searchsubmit" value="查询">
+                            </div>
+                            <div class="box-header well" data-original-title="">
+                                <h2>产品列表</h2>
+                                <div class="box-icon" style="font-size:12px;width:150px;height:30px;">
+                                    <input type="button" class="btn btn-primary btn-xs" onclick="ActionTo('update',1,'{:url(\'product/edit\')}',0);" value="修改"/>
+                                    <input type="button" class="btn btn-primary btn-xs" onclick="ActionTo('delete',2,'{:url(\'product/del_product\')}',1);" value="删除"/>
+                                </div>
+                            </div>
+                            <div class="box-content">
+                                <table class="table table-striped table-bordered bootstrap-datatable datatable responsive" style="font-size:12px;">
+                                    <thead>
+                                    <tr>
+                                        <th style="width:20px;">选项</th>
+                                        <th style="width:20px;">序号</th>
+                                        <th style="width:80px;">产品编号</th>
+                                        <th style="width:80px;">新分类</th>
+                                        <th style="width:120px;">中文名称</th>
+                                        <th style="width:40px;">成本(CNY)</th>
+                                        <th style="width:40px;">重量(g)</th>
+                                        <th>产品描述</th>
+                                        <th style="width:30px;">长(CM)</th>
+                                        <th style="width:30px;">宽(CM)</th>
+                                        <th style="width:30px;">高(CM)</th>
+                                        <th style="width:50px;">中文链接</th>
+                                        <th style="width:50px;">英文链接</th>
+                                        <th style="width:70px;">审核状态</th>
+                                        <th style="width:80px;">添加时间</th>
+                                        <th style="width:70px;">对接开发</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                        {foreach name='product_list' item='value'}
+                                        <tr class="trLine">
+                                            <td class="center"><input type="checkbox" name="checkid[]" value="{$value.id}"/></td>
+                                            <td class="center">{$key}</td>
+                                            <td class="center" style="width:80px;">{$value.sku}</td>
+                                            <td class="center">{$value.cat_id}</td>
+                                            <td class="center" style="width:140px;">{$value.ctitle}</td>
+                                            <td class="center">{$value.cost}</td>
+                                            <td class="center">{$value.ship_weight}</td>
+                                            <!--显示中文描述-->
+                                            <td class="center" style="width:40px;">
+                                                <div style="position:relative;" onmouseover="showDesc(this);" onmouseout="hideDesc(this);">
+                                                    <img border=0 src="__INDEX__/img/list.gif"><div class="col-md-3 col-sm-3 col-xs-6" style="width:200px;min-height:50px;position:absolute;left:50%;top:40%;z-index:999;display:none;"><a data-toggle="tooltip" title="" class="well top-block" href="#"  style="background:#E4EEFC;"><div style="background:#E4EEFC;font-size:12px;font-weight:300;">{$value.goods_description}</div></a>
+                                                </div>
+                                                </div>
+                                            </td>
+                                            <td class="center">{$value.package_length}</td>
+                                            <td class="center">{$value.package_width}</td>
+                                            <td class="center">{$value.package_height}</td>
+                                            <td class="center"><a href="{$value.cn_url}" target="_blank" title="{$value.cn_url}">中文链接</a></td>
+                                            <td class="center"><a href="{$value.en_url}" target="_blank" title="{$value.en_url}">英文链接</a></td>
+                                            <!--显示审核备注-->
+                                            <td class="center">
+                                                <div style="position:relative;" onmouseover="showNote(this);" onmouseout="hideNote(this);">
+                                                    {$value.is_audit}
+                                                    <div class="col-md-3 col-sm-3 col-xs-6" style="width:140px;min-height:50px;position:absolute;left:65%;top:40%;z-index:999;display:none;"><a data-toggle="tooltip" title="" class="well top-block" href="#"  style="background:#E4EEFC;"><div style="background:#E4EEFC;font-size:12px;font-weight:300;">{$value.note}</div></a>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="center" style="width:80px;">{$value.create_date}</td>
+                                            <td class="center">{$value.pended_id}</td>
+                                        </tr>
+                                    {/foreach}
+                                    </tbody>
+                                </table>
+                                <!-- 分页显示 -->
+                                <ul class="pagination pagination-centered">
+                                    <li><a href="javascript:;" onclick="pageToPage(-1);">Prev</a></li>
+                                    <li>
+                                        <a href="javascript:;">
+                                            <select name="topage" style="border:none;" onchange="javascript:document.form1.submit();">
+
+                                            </select>
+                                        </a>
+                                    </li>
+                                    <li><a href="javascript:;" onclick="pageToPage(1);">Next</a></li>
+                                    <li><a href="javascript:;"><span style="padding-left:5px;" id="total_pages" name="">条记录,共页</span></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!--/span-->
+                </div>
+            </form>
+        </div><!--/row-->
+
+    </div>
+</div>
+<script>
+    $("table tr th").css('text-align','center');
+    $("table tr td").css('text-align','center');
+    $("table tr th").css('vertical-align','middle');
+    $("table tr td").css('vertical-align','middle');
+    $("tr.trLine").click(function(){
+        if($(this).find("input[name='checkid[]']").attr('checked')){
+            $(this).find("input[name='checkid[]']").attr('checked',false);
+        }else{
+            $(this).find("input[name='checkid[]']").attr('checked',true);
+        }
+    });
+    $("tr.trLine").find("input[type='checkbox']").click(function(){
+        if($(this).attr('checked')){
+            $(this).attr('checked',false);
+        }else{
+            $(this).attr('checked',true);
+        }
+    });
+    //上下页翻页
+    function pageToPage(num){
+        var page = $("select[name='topage']").val();
+        var total_pages = $("#total_pages").attr('name');
+        if(num == -1){
+            page = parseInt(page) -1;
+            if(page < 1){
+                page = 1;
+            }
+        }
+        if(num == 1){
+            page = parseInt(page) + 1;
+            if(page > total_pages){
+                page = total_pages;
+            }
+        }
+        $("select[name='topage']").val(page);
+        document.form1.submit();
+    }
+
+    //显示描述
+    function showDesc(obj){
+        $(obj).find('img').next().show();
+    }
+    //影藏描述
+    function hideDesc(obj){
+        $(obj).find('img').next().hide();
+    }
+    //显示备注
+    function showNote(obj){
+        $(obj).find('div').show();
+    }
+    //影藏备注
+    function hideNote(obj){
+        $(obj).find('div').hide();
+    }
+</script>
+{include file="public/footer"}
